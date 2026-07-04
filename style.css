@@ -1,0 +1,96 @@
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --line: #111111;
+  --x-accent: #e63946;
+  --o-accent: #1d4ed8;
+  --win-accent: #ffc53d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  padding: 0px;
+  margin: 0px;
+  background: var(--bg);
+  color: var(--line);
+  font-family: "Inter", sans-serif;
+}
+
+.first-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 48px;
+}
+
+.game-name {
+  font-size: 64px;
+  font-weight: 600;
+  letter-spacing: -2px;
+  z-index: 1;
+  font-family: Georgia, serif;
+}
+
+.info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--surface);
+  padding: 32px;
+  border-radius: 20px;
+  width: 430px;
+  box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+.info-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+label {
+  font-size: 20px;
+  font-weight: 600;
+  width: 140px;
+}
+
+input {
+  width: 170px;
+  padding: 10px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  background-color: #f4f2ee;
+  font-size: 16px;
+  outline: none;
+}
+
+input:focus {
+  border-color: #555;
+}
+
+.start-btn {
+  border: none;
+  border-radius: 16px;
+  width: 100%;
+  padding: 14px;
+  background-color: #111;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.start-btn:hover {
+  background: #2a2a2a;
+}
