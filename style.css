@@ -66,7 +66,7 @@ label {
 }
 
 input {
-  width: 170px;
+  width: 210px;
   padding: 10px 14px;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 10px;
@@ -93,4 +93,98 @@ input:focus {
 
 .start-btn:hover {
   background: #2a2a2a;
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.players-name {
+  display: flex;
+  gap: 24px;
+  margin-top: -10px;
+}
+
+.players-name > div {
+  min-width: 170px;
+  padding: 14px 24px;
+  border-radius: 14px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.45);
+  border: 2px solid transparent;
+  color: #777;
+  font-size: 20px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.name1.active {
+  color: var(--x-accent);
+  background: #fff;
+  border-color: var(--x-accent);
+  box-shadow: 0 8px 20px rgba(230, 57, 70, 0.15);
+  transform: translateY(-2px);
+}
+
+.name2.active {
+  color: var(--o-accent);
+  background: #fff;
+  border-color: var(--o-accent);
+  box-shadow: 0 8px 20px rgba(29, 78, 216, 0.15);
+  transform: translateY(-2px);
+}
+
+.players-name > div.active {
+  opacity: 1;
+  background: var(--surface);
+  box-shadow: 0px 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  background: var(--line);
+  padding: 6px;
+  border-radius: 16px;
+  width: 360px;
+  height: 360px;
+   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+}
+
+.cell {
+  background-color: var(--surface);
+  border: none;
+  border-radius: 10px;
+  font-size: 48px;
+  font-weight: 700;
+  font-family: "Inter", sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--line);
+  transition: background 0.12s ease;
+}
+
+.cell[data-mark="X"] {
+  color: var(--x-accent);
+}
+
+.cell[data-mark="O"] {
+  color: var(--o-accent);
+}
+
+.cell:hover:not([data-mark]) {
+  background: #f2f2f2;
+  transform: scale(1.02);
+}
+
+.hidden {
+  display: none;
 }
