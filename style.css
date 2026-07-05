@@ -186,6 +186,81 @@ input:focus {
   transform: scale(1.02);
 }
 
+.game-over {
+  border: none;
+  border-radius: 16px;
+  padding: 40px 48px;
+  text-align: center;
+  background: var(--surface);
+  box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.18);
+  max-width: 400px;
+}
+
+.game-over[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+
+.game-over::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.game-over-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted, #8a8d97);
+  margin: 0 0 8px;
+}
+
+.result-text {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 24px;
+  color: var(--line);
+}
+
+.game-over-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.game-over-actions button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  flex: 1;
+  white-space: nowrap;
+  min-width: 140px;
+}
+
+.play-again {
+  background: var(--line);
+  color: #fff;
+}
+
+.play-again:hover {
+  background: #2a2a2a;
+}
+
+.reset-game {
+  background: #f4f2ee;
+  color: var(--line);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.reset-game:hover {
+  background: #ececec;
+}
+
 .hidden {
   display: none;
 }

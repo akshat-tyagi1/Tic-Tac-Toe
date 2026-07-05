@@ -1,13 +1,19 @@
+let player1, player2;
+
 function createPlayer(name, marker) {
   let score = 0;
   return { name, marker, score };
 }
 
-const Gameboard = (function () {
+//IIFEs
+//1. gameBoard - handle internal board state.
+const gameBoard = (function () {
   let board = ["", "", "", "", "", "", "", "", ""];
 
   function addMark(index, marker) {
+    // check if the cell is already marked.
     if (board[index] !== "") return false;
+
     board[index] = marker;
     return true;
   }
@@ -26,6 +32,7 @@ const Gameboard = (function () {
   return { addMark, resetBoard, readBoard };
 })();
 
+// 2. gameController - controls the game, perform multiple functions like - start game, play round And check winner.
 const gameController = (function () {
   let player1, player2, activePlayer, gameStatus;
 
@@ -37,26 +44,26 @@ const gameController = (function () {
   }
 
   function playRound(index) {
-    if (gameStatus.status !== null) {
-      return;
-    }
+    if (gameStatus.status !== null) return;
 
-    let roundStatus = Gameboard.addMark(index, activePlayer.marker);
+    // update internal state.
+    let roundStatus = gameBoard.addMark(index, activePlayer.marker);
 
+    // returns if cell is already marked
     if (!roundStatus) return;
 
     gameStatus = gameController.checkWinner(activePlayer);
 
     if (gameStatus.status === "Win") return gameStatus.winner.score++;
 
+    // Only pass the turn if the game is still ongoing — no point flipping turns after a win/tie
     if (gameStatus.status === null) {
       activePlayer = activePlayer === player1 ? player2 : player1;
-      displayController.updateActivePlayer();
     }
   }
 
   function checkWinner(mover) {
-    let gameArr = Gameboard.readBoard();
+    let gameArr = gameBoard.readBoard();
 
     const winningCombinations = [
       [0, 1, 2],
@@ -99,12 +106,16 @@ const gameController = (function () {
   return { startGame, playRound, checkWinner, getActivePlayer, getGameStatus };
 })();
 
+// 3. displayController - changes the DOM state/Update the UI
 const displayController = (function () {
   const nameOne = document.querySelector(".name1");
   const nameTwo = document.querySelector(".name2");
-  nameOne.classList.add("active");
+  const dialog = document.querySelector("dialog");
+  const resultText = document.querySelector(".result-text");
 
   function createBoard() {
+    displayBoard.innerHTML = "";
+
     for (let i = 0; i < 9; i++) {
       const button = document.createElement("button");
       button.classList.add("cell");
@@ -120,13 +131,14 @@ const displayController = (function () {
     nameTwo.textContent = `${player2.name}: ${player2.score}`;
   }
 
-  function updateActivePlayer() {
-    nameOne.classList.toggle("active");
-    nameTwo.classList.toggle("active");
+  function updateActivePlayerClass() {
+    const active = gameController.getActivePlayer();
+    nameOne.classList.toggle("active", active.marker === "X");
+    nameTwo.classList.toggle("active", active.marker === "O");
   }
 
   function renderBoard() {
-    const updatedBoard = Gameboard.readBoard();
+    const updatedBoard = gameBoard.readBoard();
     const cells = document.querySelectorAll(".cell");
 
     cells.forEach((cell) => {
@@ -136,16 +148,47 @@ const displayController = (function () {
     });
   }
 
-  return { createBoard, showName, updateActivePlayer, renderBoard };
+  function showResult(gameStatus) {
+    if (gameStatus.status === null) return;
+
+    if (gameStatus.status === "Win")
+      resultText.textContent = `${gameStatus.winner.name} Won!`;
+    if (gameStatus.status === "Tie") resultText.textContent = "It's a Tie!";
+
+    dialog.showModal();
+  }
+
+  function updateScore(winner) {
+    if (winner === null) return;
+
+    if (winner.marker === "X") {
+      nameOne.textContent = `${winner.name}: ${winner.score}`;
+    } else {
+      nameTwo.textContent = `${winner.name}: ${winner.score}`;
+    }
+  }
+
+  return {
+    createBoard,
+    showName,
+    updateActivePlayerClass,
+    renderBoard,
+    showResult,
+    updateScore,
+  };
 })();
 
-const displayBoard = document.querySelector(".board");
-const form = document.querySelector("form");
+// Event Listeners
+
 const startBtn = document.querySelector(".start-btn");
-const firstPage = document.querySelector(".first-page");
-const main = document.querySelector(".main");
+const playAgainBtn = document.querySelector(".play-again");
+const resetGameBtn = document.querySelector(".reset-game");
+let displayBoard = document.querySelector(".board");
 
 startBtn.addEventListener("click", () => {
+  const firstPage = document.querySelector(".first-page");
+  const main = document.querySelector(".main");
+  const form = document.querySelector("form");
   const formData = new FormData(form);
   let playerOneName = formData.get("player1-name");
   let playerTwoName = formData.get("player2-name");
@@ -153,10 +196,12 @@ startBtn.addEventListener("click", () => {
   if (playerOneName === "") playerOneName = "Player One";
   if (playerTwoName === "") playerTwoName = "Player Two";
 
-  const player1 = createPlayer(playerOneName, "X");
-  const player2 = createPlayer(playerTwoName, "O");
+  // Create players
+  player1 = createPlayer(playerOneName, "X");
+  player2 = createPlayer(playerTwoName, "O");
 
   gameController.startGame(player1, player2);
+  displayController.updateActivePlayerClass();
   displayController.showName(player1, player2);
   displayController.createBoard();
   firstPage.classList.toggle("hidden");
@@ -165,6 +210,36 @@ startBtn.addEventListener("click", () => {
 
 displayBoard.addEventListener("click", (event) => {
   const cellIndex = event.target.dataset.index;
+
   gameController.playRound(Number(cellIndex));
+
+  const gameStatus = gameController.getGameStatus();
+
+  displayController.updateScore(gameStatus.winner);
+  displayController.showResult(gameStatus);
+  displayController.updateActivePlayerClass();
   displayController.renderBoard();
+});
+
+playAgainBtn.addEventListener("click", () => {
+  const dialog = document.querySelector("dialog");
+
+  gameController.startGame(player1, player2);
+  displayController.updateActivePlayerClass();
+  gameBoard.resetBoard();
+  displayController.renderBoard();
+  dialog.close();
+});
+
+resetGameBtn.addEventListener("click", () => {
+  const firstPage = document.querySelector(".first-page");
+  const main = document.querySelector(".main");
+  const dialog = document.querySelector("dialog");
+  const form = document.querySelector("form");
+
+  gameBoard.resetBoard();
+  form.reset();
+  firstPage.classList.toggle("hidden");
+  main.classList.toggle("hidden");
+  dialog.close();
 });
