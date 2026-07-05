@@ -1,16 +1,7 @@
-const board = document.querySelector(".board");
-const name1 = document.querySelector(".name1");
-const name2 = document.querySelector(".name2");
-
-createBoard();
-
 function createPlayer(name, marker) {
   let score = 0;
   return { name, marker, score };
 }
-
-const player1 = createPlayer("Akshat", "X");
-const player2 = createPlayer("Friend", "O");
 
 const Gameboard = (function () {
   let board = ["", "", "", "", "", "", "", "", ""];
@@ -36,8 +27,14 @@ const Gameboard = (function () {
 })();
 
 const gameController = (function () {
-  let gameStatus = { status: null, winner: null };
-  let activePlayer = player1;
+  let player1, player2, activePlayer, gameStatus;
+
+  function startGame(p1, p2) {
+    player1 = p1;
+    player2 = p2;
+    activePlayer = p1;
+    gameStatus = { status: null, winner: null };
+  }
 
   function playRound(index) {
     if (gameStatus.status !== null) {
@@ -46,14 +43,15 @@ const gameController = (function () {
 
     let roundStatus = Gameboard.addMark(index, activePlayer.marker);
 
-    if(!roundStatus) return;
+    if (!roundStatus) return;
 
     gameStatus = gameController.checkWinner(activePlayer);
 
-    if(gameStatus.status === "Win") return gameStatus.winner.score++;
+    if (gameStatus.status === "Win") return gameStatus.winner.score++;
 
     if (gameStatus.status === null) {
       activePlayer = activePlayer === player1 ? player2 : player1;
+      displayController.updateActivePlayer();
     }
   }
 
@@ -79,7 +77,7 @@ const gameController = (function () {
         gameArr[b] === gameArr[c] &&
         gameArr[a] !== ""
       ) {
-        return { status: "Win", winner: mover }
+        return { status: "Win", winner: mover };
       }
     }
 
@@ -87,7 +85,7 @@ const gameController = (function () {
       return { status: "Tie", winner: null };
     }
 
-    return { status: null, winner: null};
+    return { status: null, winner: null };
   }
 
   function getActivePlayer() {
@@ -98,19 +96,75 @@ const gameController = (function () {
     return gameStatus;
   }
 
-  return { playRound, checkWinner, getActivePlayer, getGameStatus };
+  return { startGame, playRound, checkWinner, getActivePlayer, getGameStatus };
 })();
 
-function createBoard() {
-  for (let i = 0; i < 9; i++) {
-    const button = document.createElement("button");
-    button.classList.add("cell");
-    button.dataset.index = i;
-    button.textContent = "X";
-    button.dataset.mark = "X"
-    board.appendChild(button);
-  }
-}
+const displayController = (function () {
+  const nameOne = document.querySelector(".name1");
+  const nameTwo = document.querySelector(".name2");
+  nameOne.classList.add("active");
 
-name1.textContent = `${player1.name}: ${player1.score}`;
-name2.textContent = `${player2.name}: ${player2.score}`;
+  function createBoard() {
+    for (let i = 0; i < 9; i++) {
+      const button = document.createElement("button");
+      button.classList.add("cell");
+      button.dataset.index = i;
+      button.textContent = "";
+      button.dataset.mark = "";
+      displayBoard.appendChild(button);
+    }
+  }
+
+  function showName(player1, player2) {
+    nameOne.textContent = `${player1.name}: ${player1.score}`;
+    nameTwo.textContent = `${player2.name}: ${player2.score}`;
+  }
+
+  function updateActivePlayer() {
+    nameOne.classList.toggle("active");
+    nameTwo.classList.toggle("active");
+  }
+
+  function renderBoard() {
+    const updatedBoard = Gameboard.readBoard();
+    const cells = document.querySelectorAll(".cell");
+
+    cells.forEach((cell) => {
+      const index = cell.dataset.index;
+      cell.textContent = updatedBoard[index];
+      cell.dataset.mark = updatedBoard[index];
+    });
+  }
+
+  return { createBoard, showName, updateActivePlayer, renderBoard };
+})();
+
+const displayBoard = document.querySelector(".board");
+const form = document.querySelector("form");
+const startBtn = document.querySelector(".start-btn");
+const firstPage = document.querySelector(".first-page");
+const main = document.querySelector(".main");
+
+startBtn.addEventListener("click", () => {
+  const formData = new FormData(form);
+  let playerOneName = formData.get("player1-name");
+  let playerTwoName = formData.get("player2-name");
+
+  if (playerOneName === "") playerOneName = "Player One";
+  if (playerTwoName === "") playerTwoName = "Player Two";
+
+  const player1 = createPlayer(playerOneName, "X");
+  const player2 = createPlayer(playerTwoName, "O");
+
+  gameController.startGame(player1, player2);
+  displayController.showName(player1, player2);
+  displayController.createBoard();
+  firstPage.classList.toggle("hidden");
+  main.classList.toggle("hidden");
+});
+
+displayBoard.addEventListener("click", (event) => {
+  const cellIndex = event.target.dataset.index;
+  gameController.playRound(Number(cellIndex));
+  displayController.renderBoard();
+});
